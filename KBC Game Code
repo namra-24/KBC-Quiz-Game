@@ -1,0 +1,100 @@
+import tkinter as tk
+from tkinter import messagebox
+import pygame
+
+class KBCGame:
+    def __init__(self, root):
+        self.root = root
+        self.root.title("Kaun Banega Crorepati")
+        self.root.geometry("600x400")
+        self.root.configure(bg="darkblue")
+        
+        pygame.mixer.init()
+        self.bg_music = "kbc_music.mp3"
+        pygame.mixer.music.load(self.bg_music)
+        pygame.mixer.music.play(-1)
+        
+        self.correct_sound = "correct.mp3"
+        self.wrong_sound = "wrong.mp3"
+        
+        self.questions = [
+            {"question": "What is the capital of India?", "options": ["Mumbai", "Delhi", "Kolkata", "Chennai"], "answer": "Delhi"},
+            {"question": "Who wrote the national anthem of India?", "options": ["Rabindranath Tagore", "Bankim Chandra Chatterjee", "Sarojini Naidu", "Mahatma Gandhi"], "answer": "Rabindranath Tagore"},
+            {"question": "Which planet is known as the Red Planet?", "options": ["Earth", "Venus", "Mars", "Jupiter"], "answer": "Mars"},
+            {"question": "What is the largest ocean on Earth?", "options": ["Indian Ocean", "Atlantic Ocean", "Arctic Ocean", "Pacific Ocean"], "answer": "Pacific Ocean"},
+            {"question": "Who is known as the Father of the Nation in India?", "options": ["Jawaharlal Nehru", "Mahatma Gandhi", "Subhas Chandra Bose", "Bhagat Singh"], "answer": "Mahatma Gandhi"},
+            {"question": "What is the chemical symbol for water?", "options": ["H2O", "O2", "CO2", "NaCl"], "answer": "H2O"},
+            {"question": "Which is the smallest continent by land area?", "options": ["Europe", "Australia", "Antarctica", "South America"], "answer": "Australia"},
+            {"question": "Who invented the telephone?", "options": ["Alexander Graham Bell", "Thomas Edison", "Nikola Tesla", "James Watt"], "answer": "Alexander Graham Bell"},
+            {"question": "What is the square root of 64?", "options": ["6", "7", "8", "9"], "answer": "8"},
+            {"question": "Which gas do plants primarily use for photosynthesis?", "options": ["Oxygen", "Carbon Dioxide", "Nitrogen", "Hydrogen"], "answer": "Carbon Dioxide"},
+            {"question": "What is the capital of France?", "options": ["Berlin", "Madrid", "Paris", "Rome"], "answer": "Paris"},
+            {"question": "Who painted the Mona Lisa?", "options": ["Vincent van Gogh", "Leonardo da Vinci", "Pablo Picasso", "Claude Monet"], "answer": "Leonardo da Vinci"},
+            {"question": "What is the largest mammal on Earth?", "options": ["Elephant", "Blue Whale", "Giraffe", "Hippopotamus"], "answer": "Blue Whale"},
+            {"question": "Which country is known as the Land of the Rising Sun?", "options": ["China", "Japan", "South Korea", "Thailand"], "answer": "Japan"},
+            {"question": "What is the boiling point of water at sea level?", "options": ["90°C", "100°C", "110°C", "120°C"], "answer": "100°C"},
+            {"question": "Who discovered gravity?", "options": ["Albert Einstein", "Isaac Newton", "Galileo Galilei", "Marie Curie"], "answer": "Isaac Newton"},
+            {"question": "Which is the longest river in the world?", "options": ["Amazon River", "Nile River", "Yangtze River", "Mississippi River"], "answer": "Nile River"},
+            {"question": "What is the national animal of India?", "options": ["Elephant", "Peacock", "Tiger", "Lion"], "answer": "Tiger"},
+            {"question": "Who is the author of 'Harry Potter'?", "options": ["J.K. Rowling", "J.R.R. Tolkien", "George R.R. Martin", "C.S. Lewis"], "answer": "J.K. Rowling"},
+            {"question": "What is the hardest natural substance on Earth?", "options": ["Gold", "Iron", "Diamond", "Platinum"], "answer": "Diamond"},
+            {"question": "Which planet is closest to the Sun?", "options": ["Venus", "Earth", "Mercury", "Mars"], "answer": "Mercury"},
+            {"question": "What is the capital of Australia?", "options": ["Sydney", "Melbourne", "Canberra", "Brisbane"], "answer": "Canberra"},
+            {"question": "Who is known as the Iron Man of India?", "options": ["Mahatma Gandhi", "Sardar Vallabhbhai Patel", "Jawaharlal Nehru", "Subhas Chandra Bose"], "answer": "Sardar Vallabhbhai Patel"},
+            {"question": "What is the chemical symbol for gold?", "options": ["Au", "Ag", "Fe", "Pb"], "answer": "Au"},
+            {"question": "Which is the largest desert in the world?", "options": ["Sahara Desert", "Gobi Desert", "Kalahari Desert", "Arctic Desert"], "answer": "Sahara Desert"}
+        ]
+        self.prize_money = [
+            "₹100", "₹200", "₹300", "₹500", "₹1,000", 
+            "₹2,000", "₹5,000", "₹10,000", "₹20,000", "₹40,000", 
+            "₹80,000", "₹1,60,000", "₹3,20,000", "₹6,40,000", "₹12,50,000", 
+            "₹25,00,000", "₹50,00,000", "₹1 Crore", "₹2 Crore", "₹3 Crore", 
+            "₹5 Crore", "₹7 Crore"
+        ]
+        self.current_question = 0
+        self.create_widgets()
+
+    def create_widgets(self):
+        self.question_label = tk.Label(self.root, text=self.questions[self.current_question]['question'], font=("Arial", 16, "bold"), fg="yellow", bg="darkblue")
+        self.question_label.pack(pady=20)
+        
+        self.options_var = tk.StringVar()
+        self.options_buttons = []
+        for option in self.questions[self.current_question]['options']:
+            btn = tk.Radiobutton(self.root, text=option, variable=self.options_var, value=option, font=("Arial", 14, "bold"), fg="white", bg="darkblue", selectcolor="black")
+            btn.pack(anchor="w", padx=20)
+            self.options_buttons.append(btn)
+        
+        self.submit_button = tk.Button(self.root, text="Submit", command=self.check_answer, font=("Arial", 14, "bold"), bg="gold", fg="black")
+        self.submit_button.pack(pady=20)
+    
+    def check_answer(self):
+        selected_answer = self.options_var.get()
+        pygame.mixer.music.stop()
+        
+        if selected_answer == self.questions[self.current_question]['answer']:
+            pygame.mixer.Sound(self.correct_sound).play()
+            messagebox.showinfo("Correct!", f"You have won {self.prize_money[self.current_question]}")
+            self.current_question += 1
+            if self.current_question < len(self.questions):
+                pygame.mixer.music.load(self.bg_music)
+                pygame.mixer.music.play(-1) 
+                self.update_question()
+            else:
+                messagebox.showinfo("Congratulations!", "You have won the game!")
+                self.root.quit()
+        else:
+            pygame.mixer.Sound(self.wrong_sound).play()
+            messagebox.showerror("Wrong Answer", "Game Over!")
+            self.root.quit()
+    
+    def update_question(self):
+        self.question_label.config(text=self.questions[self.current_question]['question'])
+        for i, option in enumerate(self.questions[self.current_question]['options']):
+            self.options_buttons[i].config(text=option, value=option)
+        self.options_var.set("")
+
+if __name__ == "__main__":
+    root = tk.Tk()
+    game = KBCGame(root)
+    root.mainloop()
